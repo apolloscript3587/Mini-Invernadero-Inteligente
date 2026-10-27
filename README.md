@@ -12,6 +12,7 @@
 
 ### Temperatura: DHT22 https://www.mactronica.com.co/sensor-de-temperatura-y-humedad-dht22
 
+### Luz Ambiental: BHL1750 https://www.mactronica.com.co/sensor-de-luz-bhl1750-con-coraza
+
 ### Humedad del Suelo: SENSOR DE HUMEDAD DEL SUELO CAPACITIVO https://www.mactronica.com.co/sensor-de-humedad-del-suelo-capacitivo
 
-### Luz Ambiental: BHL1750 https://www.mactronica.com.co/sensor-de-luz-bhl1750-con-coraza

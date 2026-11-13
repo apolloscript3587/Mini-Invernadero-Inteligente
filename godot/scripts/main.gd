@@ -6,6 +6,7 @@ const ESP32_PORT := 5000
 var tcp := StreamPeerTCP.new()
 var is_connected_to_device := false
 var rx_buffer := ""
+var last_ping_ms := 0
 
 var status_label: Label
 var humidity_label: Label
@@ -178,6 +179,10 @@ func _process(_delta: float) -> void:
             connect_button.disabled = true
             disconnect_button.disabled = false
         _read_messages()
+        var now := Time.get_ticks_msec()
+        if now - last_ping_ms >= 30000:
+            _send_json({"type": "ping"})
+            last_ping_ms = now
     elif is_connected_to_device:
         _set_disconnected("Conexión perdida")
     elif current_status == StreamPeerTCP.STATUS_ERROR:
@@ -209,7 +214,7 @@ func _handle_message(line: String) -> void:
     match parsed.get("type", ""):
         "telemetry":
             var humidity = parsed.get("humidity", -1.0)
-            humidity_label.text = "Humedad: %s %%" % ("--" if humidity == null else str(snappedf(float(humidity), 0.1)))
+            humidity_label.text = "Humedad: " + ("--" if humidity == null else str(snappedf(float(humidity), 0.1))) + "%"
             valve_label.text = "Electroválvula: %s" % ("Abierta" if parsed.get("valve", false) else "Cerrada")
             next_watering_label.text = "Próximo riego: %s min" % str(parsed.get("next_watering_minutes", "--"))
             event_label.text = "Evento: %s" % str(parsed.get("event", "--"))

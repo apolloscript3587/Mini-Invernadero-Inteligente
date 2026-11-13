@@ -58,6 +58,7 @@ Config cfg;
 
 RTC_DATA_ATTR uint32_t rtcSecondsSinceWatering = 0;
 RTC_DATA_ATTR bool rtcStateInitialized = false;
+RTC_DATA_ATTR bool hasWateredOnce = false;
 
 uint32_t sessionStartedMs = 0;
 uint32_t lastClientActivityMs = 0;
@@ -152,7 +153,7 @@ void setValve(bool on) {
 bool canWater(float humidity) {
   if (humidity < 0.0f) return false; // lectura inválida
   if (humidity >= cfg.highHumidity) return false;
-  if (rtcSecondsSinceWatering < cfg.minIntervalBetweenWateringsSec) return false;
+  if (hasWateredOnce && rtcSecondsSinceWatering < cfg.minIntervalBetweenWateringsSec) return false;
   return true;
 }
 
@@ -193,6 +194,7 @@ bool waterForMl(float requestedMl, bool manual) {
 
   rtcSecondsSinceWatering = 0;
   rtcStateInitialized = true;
+  hasWateredOnce = true;
   lastWateringMs = millis();
   lastWaterMl = static_cast<uint32_t>(
     cfg.estimatedFlowMlPerSec * durationMs / 1000.0f

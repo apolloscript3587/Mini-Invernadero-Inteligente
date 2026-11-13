@@ -62,6 +62,7 @@ RTC_DATA_ATTR bool rtcStateInitialized = false;
 uint32_t sessionStartedMs = 0;
 uint32_t lastClientActivityMs = 0;
 uint32_t lastTelemetryMs = 0;
+uint32_t lastSensorReadMs = 0;
 uint32_t lastWateringMs = 0;
 String rxBuffer;
 bool apSession = false;
@@ -277,6 +278,10 @@ void processMessage(const String &line) {
 }
 
 void serviceTcp() {
+  if (millis() - lastSensorReadMs >= 5000) {
+    lastSensorReadMs = millis();
+    updateSoilReading();
+  }
   if (!client || !client.connected()) {
     WiFiClient incoming = server.available();
     if (incoming) {
@@ -321,6 +326,8 @@ void serviceTcp() {
 // Wi-Fi session
 // -----------------------------------------------------------------------------
 void startApSession() {
+  updateSoilReading();
+  lastSensorReadMs = millis();
   WiFi.mode(WIFI_AP);
   WiFi.setSleep(true);
   WiFi.softAP(AP_SSID, AP_PASSWORD);

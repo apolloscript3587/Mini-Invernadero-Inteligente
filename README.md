@@ -1,16 +1,16 @@
 # Mini-Invernadero Inteligente
 
-Sistema de monitoreo para un mini-invernadero. La propuesta contempla medir tres variables del entorno y del cultivo: temperatura del aire, iluminación ambiental y humedad del suelo. Este repositorio organiza la documentación técnica y las evidencias del desarrollo.
+Sistema de monitoreo para un mini-invernadero. La documentación inicial identifica tres variables que se desean medir: temperatura y humedad relativa del aire, iluminación ambiental y humedad del suelo. Este repositorio incorpora una implementación de referencia para adquirir esas variables.
 
-> **Estado de la documentación:** el README original del proyecto identificaba los sensores DHT22, BH1750 (escrito originalmente como BHL1750) y un sensor capacitivo de humedad del suelo. No especificaba microcontrolador, actuador de riego, pines, alimentación, código ni resultados medidos. Esos datos se dejan señalados como pendientes de confirmar para no atribuir al prototipo componentes o pruebas que no estén verificadas.
+> **Importante sobre el alcance:** la información inicial no especificaba microcontrolador ni pinout. Para desarrollar el firmware y los diagramas se tomó como plataforma de referencia un **ESP32 DevKit V1 / ESP32-WROOM-32**. Esta elección es una propuesta técnica, no una confirmación de que sea la placa instalada en el prototipo. Verificarla antes de cablear. La bomba y el relé aparecen como opción de riego, porque no se confirmó que formen parte del montaje físico.
 
 ## 1. Integrantes
 
-- **Pendiente:** agregar los nombres completos de los integrantes y la contribución de cada uno.
+- Pendiente: agregar nombres completos y contribución de cada integrante.
 
 ## 2. Problema identificado
 
-Las plantas de un invernadero requieren condiciones ambientales y humedad del sustrato adecuadas. Sin mediciones, el seguimiento de estas condiciones depende de la observación manual. El proyecto busca instrumentar un mini-invernadero para obtener información de temperatura, luz y humedad del suelo y facilitar su supervisión.
+Las plantas de un invernadero requieren condiciones ambientales y humedad del sustrato adecuadas. Sin mediciones, el seguimiento depende de la observación manual. El proyecto busca instrumentar un mini-invernadero para obtener información de temperatura, luz y humedad del suelo y facilitar su supervisión.
 
 ## 3. Objetivos
 
@@ -18,129 +18,152 @@ Las plantas de un invernadero requieren condiciones ambientales y humedad del su
 Desarrollar un mini-invernadero inteligente que permita monitorear variables ambientales y del suelo mediante sensores electrónicos.
 
 ### Objetivos específicos
-- Medir la temperatura y humedad relativa del aire con un DHT22.
-- Medir la iluminación ambiental con un sensor BH1750.
-- Medir la humedad del sustrato con un sensor capacitivo.
+- Medir temperatura y humedad relativa del aire con un DHT22.
+- Medir iluminación ambiental con un sensor BH1750.
+- Medir humedad del sustrato con un sensor capacitivo.
 - Integrar las lecturas en un microcontrolador y documentar su validación.
-- Definir e implementar una estrategia de riego automatizado si el prototipo incorpora un actuador de riego.
+- Evaluar la incorporación de riego automático si el prototipo dispone de actuador y etapa de potencia.
 
 ## 4. Descripción del funcionamiento
 
-La arquitectura prevista obtiene datos de tres sensores:
 1. El DHT22 proporciona temperatura del aire y humedad relativa.
-2. El BH1750 mide la iluminación ambiental.
-3. El sensor capacitivo entrega una señal relacionada con la humedad del suelo.
+2. El BH1750 mide iluminación ambiental en lux mediante el bus I²C.
+3. El sensor capacitivo entrega una señal analógica relacionada con la humedad del suelo.
+4. El ESP32 de referencia consulta los sensores y emite mediciones en formato JSON por el monitor serie.
+5. De manera opcional, una salida del ESP32 puede controlar un módulo de relé para accionar una bomba con alimentación externa. Esta función está deshabilitada por defecto y requiere calibración y comprobación eléctrica previa.
 
-Un microcontrolador (modelo por confirmar) deberá adquirir y procesar estas lecturas. La visualización, conectividad y automatización del riego no están descritas en la información disponible y deben documentarse cuando se confirme su implementación.
+## 5. Componentes
 
-## 5. Componentes utilizados
-
-| Componente | Cantidad prevista | Función |
+| Componente | Cantidad de referencia | Función / estado |
 |---|---:|---|
-| DHT22 | 1 | Medición de temperatura y humedad relativa del aire |
-| Sensor BH1750 | 1 | Medición de iluminación ambiental |
-| Sensor capacitivo de humedad del suelo | 1 | Medición de humedad del sustrato |
-| Microcontrolador | Por confirmar | Lectura y procesamiento de sensores |
-| Actuador de riego (bomba/válvula y etapa de potencia) | Por confirmar | Riego, únicamente si está instalado |
+| DHT22 | 1 | Temperatura y humedad relativa del aire; identificado en la información original |
+| BH1750 | 1 | Iluminación ambiental; identificado en la información original (en el README inicial aparecía como BHL1750) |
+| Sensor capacitivo de humedad del suelo | 1 | Humedad del sustrato; identificado en la información original |
+| ESP32 DevKit V1 / ESP32-WROOM-32 | 1 | Microcontrolador elegido para la implementación de referencia; confirmar placa real |
+| Módulo de relé | Opcional | Interfaz de potencia para riego; no confirmado en el montaje original |
+| Bomba y fuente externa | Opcional | Actuador de riego; no confirmado en el montaje original |
 
-Referencias de los sensores consignadas en el README anterior:
+Referencias de sensores consignadas en el README original:
 - [DHT22 – Mactrónica](https://www.mactronica.com.co/sensor-de-temperatura-y-humedad-dht22)
 - [BH1750 – Mactrónica](https://www.mactronica.com.co/sensor-de-luz-bhl1750-con-coraza)
 - [Sensor capacitivo de humedad del suelo – Mactrónica](https://www.mactronica.com.co/sensor-de-humedad-del-suelo-capacitivo)
 
 ## 6. Arquitectura del sistema
 
-**Entradas:** DHT22, BH1750 y sensor capacitivo de humedad del suelo.  
-**Procesamiento:** microcontrolador por identificar.  
-**Salidas:** sistema de visualización y/o actuador de riego, por confirmar según el montaje real.
+**Entradas:** DHT22, BH1750 y sensor capacitivo.  
+**Procesamiento:** ESP32 DevKit V1 como plataforma propuesta.  
+**Salida de datos:** monitor serie a 115200 baudios, una línea JSON cada 2,5 segundos.  
+**Riego:** salida de relé opcional; requiere bomba y fuente externa. Está deshabilitado inicialmente.
+
+Consulta el diagrama editable en [diagramas/arquitectura.mmd](diagramas/arquitectura.mmd).
 
 ## 7. Diagrama de conexiones
 
-No se ha incluido todavía un esquema eléctrico verificable. Agregarlo en `diagramas/` cuando se confirmen el modelo de placa, los pines, la tensión de alimentación y el cableado real.
+![Diagrama de conexiones de referencia ESP32](diagramas/conexiones_esp32.svg)
 
-| Módulo | Interfaz/pines | Alimentación |
+| Módulo | Señal | Pin ESP32 propuesto |
 |---|---|---|
-| DHT22 | Por confirmar según placa y montaje | Consultar versión del módulo |
-| BH1750 | Bus I²C: SDA/SCL; pines de placa por confirmar | Consultar módulo utilizado |
-| Sensor capacitivo | Salida analógica; pin ADC por confirmar | Consultar módulo utilizado |
-| Controlador de riego | Por confirmar; requiere etapa de potencia adecuada si aplica | Por confirmar |
+| DHT22 | DATA | GPIO 4 |
+| BH1750 | SDA | GPIO 21 |
+| BH1750 | SCL | GPIO 22 |
+| Sensor capacitivo | AO | GPIO 34 (ADC1) |
+| Relé opcional | IN | GPIO 26 |
 
-No conectar una bomba directamente a un pin del microcontrolador. La etapa de potencia y la alimentación deben dimensionarse según el actuador real.
+Alimentación, GND común y notas de seguridad están descritos en [diagramas/conexiones.md](diagramas/conexiones.md). Confirmar las tensiones admitidas por cada módulo; no aplicar 5 V a GPIO del ESP32 ni permitir que AO exceda el límite eléctrico de la placa.
 
 ## 8. Desarrollo del software
 
-La carpeta `codigo/` está destinada al código fuente original. Aún debe incorporarse el programa utilizado por el equipo. Al agregarlo, documentar:
-- Placa y entorno de desarrollo.
-- Librerías y versiones.
-- Inicialización de sensores.
-- Lectura y tratamiento de datos.
-- Umbrales de control, si existen.
-- Comunicación o visualización, si se implementó.
+El firmware está en [codigo/mini_invernadero_esp32.ino](codigo/mini_invernadero_esp32.ino).
 
-No se incluye código ficticio como si fuera el firmware probado del prototipo.
+Funciones principales:
+- Inicializa DHT22, BH1750 e interfaz I²C.
+- Lee temperatura, humedad relativa, iluminación y ADC del sensor de suelo.
+- Calcula un porcentaje de humedad de suelo a partir de dos puntos de calibración medidos.
+- Publica los valores como JSON en el monitor serie.
+- Incluye una lógica de riego opcional con histéresis, tiempo máximo de activación y tiempo mínimo de reposo.
+
+Librerías Arduino IDE:
+- DHT sensor library de Adafruit.
+- Adafruit Unified Sensor.
+- BH1750 (claws).
+
+Instrucciones de instalación y carga: [codigo/README.md](codigo/README.md).
+
+### Calibración del suelo
+
+En el firmware, reemplazar `SOIL_DRY_RAW` y `SOIL_WET_RAW` con lecturas reales del sensor en sustrato seco y húmedo. No se asignaron valores de calibración inventados. Sin calibración, el porcentaje sale como `null` y el riego no puede activarse.
+
+### Riego automático opcional
+
+El firmware mantiene `ENABLE_IRRIGATION = false`. Sólo habilitarlo después de confirmar físicamente relé, bomba, fuente externa, polaridad del módulo, cableado y calibración. La bomba nunca se alimenta desde un GPIO o el pin 3V3 del ESP32.
 
 ## 9. Instalación y puesta en funcionamiento
 
-1. Identificar la placa y registrar su modelo exacto.
-2. Instalar el entorno de desarrollo correspondiente.
-3. Incorporar las librerías requeridas por el firmware real.
-4. Revisar el diagrama y verificar alimentación, tierra y conexiones.
-5. Cargar el programa original al microcontrolador.
-6. Abrir el monitor o interfaz que utilice el proyecto y comprobar las lecturas.
-7. Si existe riego automático, probarlo inicialmente con medidas de seguridad y supervisión, verificando el actuador y su etapa de potencia.
+1. Confirmar que la placa física sea ESP32 DevKit V1 / ESP32-WROOM-32 o adaptar el programa y diagrama.
+2. Instalar Arduino IDE y el soporte para ESP32.
+3. Instalar las librerías indicadas en `codigo/README.md`.
+4. Cablear siguiendo [diagramas/conexiones.md](diagramas/conexiones.md), verificando primero alimentación y niveles lógicos.
+5. Abrir y cargar `codigo/mini_invernadero_esp32.ino`.
+6. Abrir el monitor serie a 115200 baudios y revisar que cada sensor entregue datos.
+7. Calibrar el sensor de suelo con el sustrato utilizado.
+8. Probar primero el monitoreo. No activar riego hasta validar el circuito de potencia y la bomba.
 
-Los pasos específicos de compilación y carga se completarán cuando se agregue el código fuente.
+## 10. Pruebas de funcionamiento
 
-## 10. Pruebas realizadas
+**No se han aportado registros de pruebas físicas.** Los siguientes son casos de prueba propuestos, no resultados exitosos declarados.
 
-**No se han aportado registros de pruebas ni mediciones verificables.** La siguiente tabla es un plan de validación, no una declaración de pruebas exitosas.
-
-| Prueba | Objetivo / resultado esperado | Resultado obtenido | Estado |
+| Prueba | Resultado esperado | Resultado obtenido | Estado |
 |---|---|---|---|
-| Lectura DHT22 | Obtener temperatura y humedad relativa del aire | Pendiente de registrar | No ejecutada/documentada |
-| Lectura BH1750 | Obtener una medición de iluminación | Pendiente de registrar | No ejecutada/documentada |
-| Lectura del sensor capacitivo | Obtener una señal que cambie con la humedad del sustrato | Pendiente de registrar | No ejecutada/documentada |
-| Riego automático (si está instalado) | Activar el actuador bajo la condición definida por el equipo | Pendiente de confirmar | No verificable |
+| Lectura DHT22 | Obtener temperatura y humedad relativa | Pendiente de registrar | Pendiente |
+| Lectura BH1750 | Obtener lecturas en lux y observar cambios con la luz | Pendiente de registrar | Pendiente |
+| Lectura sensor capacitivo | Obtener lecturas ADC distintas entre sustrato seco y húmedo; calibrar porcentaje | Pendiente de registrar | Pendiente |
+| Riego opcional | Activar y detener la bomba según umbrales calibrados | No verificado; función deshabilitada | Pendiente |
 
-Para cada prueba agregar objetivo, procedimiento, resultado esperado, resultado real, fecha y evidencia (fotografía, captura o registro). Si una prueba falla, documentar el fallo y las acciones correctivas.
+El procedimiento y el formato de registro están en [documentacion/calibracion-y-pruebas.md](documentacion/calibracion-y-pruebas.md). Cada prueba real debe documentarse con objetivo, procedimiento, resultado esperado, resultado obtenido, estado y evidencia.
 
 ## 11. Evidencias fotográficas
 
 Agregar al menos cinco fotografías reales en `evidencias/fotos/`:
-1. Componentes electrónicos identificados.
+1. Componentes electrónicos.
 2. Montaje y conexiones del circuito.
 3. Proceso de construcción o ensamblaje.
 4. Prototipo completo.
 5. Prototipo durante una prueba real.
 
-Insertar aquí las imágenes con una breve descripción cuando estén disponibles. No se agregan imágenes de referencia como si fueran fotografías del prototipo.
+Las imágenes deben corresponder al proyecto del equipo; no sustituirlas por imágenes de referencia.
 
 ## 12. Video demostrativo
 
-Pendiente de incorporar un video real de 3 a 5 minutos que presente el problema, los componentes, las conexiones, una demostración del prototipo y los resultados/dificultades. Guardarlo en `evidencias/videos/` o añadir un enlace accesible.
+Pendiente incorporar un video real de 3 a 5 minutos con presentación del problema, componentes, conexiones, demostración de funcionamiento y resultados/dificultades. Guardarlo en `evidencias/videos/` o incluir un enlace accesible.
 
 ## 13. Dificultades y soluciones
 
-Registrar al menos dos dificultades que hayan ocurrido realmente durante el desarrollo, indicando síntoma, causa identificada, solución intentada y resultado. No se han suministrado incidencias concretas; esta sección queda pendiente de completar por el equipo.
+Registrar al menos dos dificultades que hayan ocurrido realmente, indicando síntoma, causa, solución intentada y resultado. No se han suministrado incidencias concretas.
 
 ## 14. Conclusiones y estado actual
 
-La información inicial define las variables que el proyecto busca medir y propone tres sensores: DHT22, BH1750 y sensor capacitivo de humedad del suelo. Para cerrar la documentación técnica faltan datos esenciales del montaje, el microcontrolador, el firmware, el diagrama eléctrico y las evidencias de validación. El estado funcional del prototipo debe establecerse a partir de pruebas reales del equipo.
+La información original identifica los sensores DHT22, BH1750 y capacitivo para humedad del suelo. Se añadió un firmware de referencia ESP32, pinout, diagrama y procedimiento de calibración. La placa ESP32 es una decisión de implementación que se debe confirmar contra el prototipo. El firmware todavía requiere carga y validación física; tampoco hay evidencias de pruebas, fotografías ni video en los materiales disponibles.
 
 ## 15. Contribuciones y créditos
 
-Cada integrante debe indicar su aporte. Reconocer las librerías, diseños y recursos de terceros que se utilicen. No publicar contraseñas Wi-Fi, tokens ni credenciales.
+Cada integrante debe indicar su aporte. Reconocer librerías, diseños y recursos de terceros. No publicar contraseñas Wi-Fi, tokens ni credenciales.
 
 ## Estructura del repositorio
 
-```text
+~~~text
 .
 ├── README.md
 ├── codigo/
+│   ├── mini_invernadero_esp32.ino
+│   └── README.md
 ├── diagramas/
+│   ├── arquitectura.mmd
+│   ├── conexiones.md
+│   └── conexiones_esp32.svg
 ├── evidencias/
 │   ├── fotos/
 │   └── videos/
 ├── pruebas/
 └── documentacion/
-```
+    └── calibracion-y-pruebas.md
+~~~

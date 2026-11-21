@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900">
+<defs><style>
+.bg{fill:#f7fafc}.board{fill:#e8f1fb;stroke:#2563eb;stroke-width:3}.sensor{fill:#eefbf3;stroke:#16a34a;stroke-width:2}.optional{fill:#fff7ed;stroke:#ea580c;stroke-width:2;stroke-dasharray:8 5}
+.title{font:700 28px Arial,sans-serif;fill:#0f172a}.head{font:700 20px Arial,sans-serif;fill:#0f172a}.txt{font:16px Arial,sans-serif;fill:#334155}.small{font:14px Arial,sans-serif;fill:#475569}.pin{font:700 15px Arial,sans-serif;fill:#1d4ed8}
+.wire{fill:none;stroke:#2563eb;stroke-width:4}.i2c{fill:none;stroke:#0d9488;stroke-width:4}.analog{fill:none;stroke:#7c3aed;stroke-width:4}.optionalwire{fill:none;stroke:#ea580c;stroke-width:4;stroke-dasharray:8 6}
+</style></defs>
+<rect class="bg" width="1200" height="900"/>
+<text x="48" y="55" class="title">Mini-Invernadero Inteligente — conexiones de referencia</text>
+<text x="48" y="84" class="txt">Plataforma propuesta: ESP32 DevKit V1 / ESP32-WROOM-32 · confirmar hardware real</text>
+<rect x="440" y="210" width="320" height="440" rx="18" class="board"/>
+<text x="600" y="250" text-anchor="middle" class="head">ESP32 DevKit V1</text>
+<text x="465" y="300" class="pin">3V3 (alimentación)</text><text x="465" y="345" class="pin">GND (tierra común)</text><text x="465" y="410" class="pin">GPIO 4</text><text x="465" y="455" class="pin">GPIO 21 / SDA</text><text x="465" y="500" class="pin">GPIO 22 / SCL</text><text x="465" y="555" class="pin">GPIO 34 / ADC</text><text x="465" y="610" class="pin">GPIO 26 / RELAY</text>
+<rect x="55" y="165" width="285" height="190" rx="14" class="sensor"/>
+<text x="197" y="205" text-anchor="middle" class="head">DHT22</text><text x="82" y="250" class="txt">VCC → 3V3</text><text x="82" y="282" class="txt">GND → GND</text><text x="82" y="314" class="txt">DATA → GPIO 4</text><text x="82" y="338" class="small">Pull-up 4,7–10 kΩ si desnudo</text>
+<rect x="55" y="430" width="285" height="190" rx="14" class="sensor"/>
+<text x="197" y="470" text-anchor="middle" class="head">BH1750 (I²C)</text><text x="82" y="515" class="txt">VCC → 3V3</text><text x="82" y="547" class="txt">GND → GND</text><text x="82" y="579" class="txt">SDA → GPIO 21</text><text x="82" y="603" class="txt">SCL → GPIO 22</text>
+<rect x="860" y="165" width="285" height="190" rx="14" class="sensor"/>
+<text x="1002" y="205" text-anchor="middle" class="head">Sensor capacitivo</text><text x="887" y="250" class="txt">VCC → 3V3 (si admite)</text><text x="887" y="282" class="txt">GND → GND</text><text x="887" y="314" class="txt">AO → GPIO 34 (ADC1)</text><text x="887" y="338" class="small">AO no debe superar 3,3 V</text>
+<rect x="860" y="430" width="285" height="150" rx="14" class="optional"/>
+<text x="1002" y="470" text-anchor="middle" class="head">Relé (opcional)</text><text x="887" y="515" class="txt">IN → GPIO 26</text><text x="887" y="545" class="small">VCC/GND según módulo</text>
+<rect x="860" y="650" width="285" height="130" rx="14" class="optional"/>
+<text x="1002" y="690" text-anchor="middle" class="head">Bomba + fuente externa</text><text x="887" y="730" class="txt">Contactos COM / NO del relé</text><text x="887" y="757" class="small">No alimentar desde el ESP32</text>
+<path class="wire" d="M340 314 H390 V410 H440"/><path class="i2c" d="M340 579 H395 V455 H440"/><path class="i2c" d="M340 603 H410 V500 H440"/><path class="analog" d="M760 555 H810 V314 H860"/><path class="optionalwire" d="M760 610 H810 V515 H860"/><path class="optionalwire" d="M1002 580 V650"/>
+<text x="48" y="840" class="small">Las líneas dibujadas representan señales; las conexiones 3V3 y GND se detallan en la tabla de conexiones.</text>
+<text x="48" y="865" class="small">Bomba y relé son opcionales: confirmar tensiones, compatibilidad y protecciones antes de conectarlos.</text>
+</svg>

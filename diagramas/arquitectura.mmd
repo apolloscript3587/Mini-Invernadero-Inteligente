@@ -1,0 +1,13 @@
+flowchart TD
+  subgraph Entradas
+    A[DHT22: temperatura y humedad relativa]
+    B[BH1750: iluminacion en lux]
+    C[Sensor capacitivo: humedad del suelo]
+  end
+  D[ESP32 DevKit V1]
+  A -->|GPIO 4| D
+  B -->|I2C: SDA 21 / SCL 22| D
+  C -->|ADC: GPIO 34| D
+  D --> E[Monitor serie: telemetria JSON]
+  D -->|GPIO 26 opcional| F[Modulo de rele]
+  F --> G[Bomba con fuente externa]

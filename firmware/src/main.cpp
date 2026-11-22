@@ -38,7 +38,6 @@ const char* stateName(){switch(state){case IDLE:return "idle";case WATERING:retu
 void sendJson(JsonDocument &doc){ if(godotClient && godotClient.connected()){serializeJson(doc,godotClient);godotClient.print('\n');} }
 void sendAck(const char* message,bool ok=true){JsonDocument d;d["type"]="ack";d["ok"]=ok;d["message"]=message;d["event"]=eventText;sendJson(d);}
 void lockout(const char* why){valve(false);state=LOCKOUT;stateAt=millis();eventText=why;Serial.print("# BLOQUEO: ");Serial.println(why);}
-void beginBurst(){cycleStartPulses();}
 // Keep each watering burst bounded; the flow meter is a safety/measurement input,
 // while soil moisture remains the control variable.
 void startBurst(){uint32_t n=pulseCount();lastSeenPulseCount=n;lastPulseAt=millis();stateAt=millis();state=WATERING;cycles++;valve(true);eventText="Pulso de riego activo";}

@@ -1,45 +1,37 @@
-# Hardware y cableado
+# Hardware y comunicación
 
-## Plataforma
+## Plataforma y sensores
 
-ESP32 DevKit V1 con módulo ESP32-WROOM-32 clásico.
-
-## Sensores (solo dos)
+ESP32 DevKit V1 / ESP32-WROOM-32 clásico. El sistema usa exclusivamente dos sensores:
 
 | Elemento | GPIO | Nota |
 |---|---:|---|
-| Sensor capacitivo de humedad AO | 34 | ADC1, entrada solamente |
-| Caudalímetro: salida de pulsos | 27 | Interrupción; adaptar nivel a 3,3 V |
+| Sensor capacitivo de humedad AO | 34 | ADC1; AOUT máximo 3,3 V |
+| Caudalímetro: pulsos | 27 | Interrupción; adaptar nivel a 3,3 V |
 
 ## Actuador
 
-| Elemento | GPIO | Nota |
-|---|---:|---|
-| Entrada de driver/relé de electroválvula | 26 | No conectar la bobina al GPIO |
+GPIO26 controla la entrada de un driver/relé. La electroválvula debe ser normalmente cerrada, apta para la presión estática del tanque y alimentada por fuente externa. No conectar bobina al GPIO. Elegir la etapa de potencia según tensión y corriente de válvula.
 
-La electroválvula debe ser normalmente cerrada y alimentarse con fuente externa adecuada. Para válvula DC, dimensionar MOSFET logic-level, cableado, fuente y protección flyback según tensión/corriente de la bobina. Para válvula AC se requiere una etapa aislada específica; no usar el esquema DC.
+## Hidráulica
 
-## Sensor capacitivo
+Tanque elevado → electroválvula NC → caudalímetro → manguera/goteros → planta. Confirmar que la válvula abra con la presión disponible (preferir acción directa si la presión es baja) y que el sensor de flujo mida el caudal mínimo real.
 
-- Confirmar tensión de alimentación del fabricante.
-- AOUT nunca debe superar 3,3 V en GPIO34; adaptar nivel si corresponde.
-- Calibrar ADC en sustrato seco y húmedo real; cargar los valores en el firmware.
-- Evitar sumergir la electrónica y proteger conexiones de salpicaduras.
+## Wi-Fi y Godot
 
-## Sensor de flujo
+El firmware crea un punto de acceso:
+- SSID: `MACETA_ESP32`
+- Contraseña inicial: `riego1234` (cambiar en firmware antes de desplegar)
+- TCP: `192.168.4.1:5000`
+- Protocolo: JSON delimitado por salto de línea.
 
-- Instalar después de la electroválvula, respetando la flecha de flujo.
-- Confirmar que el modelo mida el caudal bajo disponible por gravedad.
-- Calibrar pulsos por litro con un volumen recogido en el montaje definitivo.
-- Adaptar toda salida de 5 V a 3,3 V antes de GPIO27.
+La interfaz Godot se conecta a ese AP y recibe telemetría. La configuración enviada desde Godot se aplica en RAM y se pierde al reiniciar. No se implementa control remoto de riego manual ni apagado remoto.
 
-## Electroválvula y tanque
+## Calibración y seguridad
 
-- La válvula debe ser apta para la presión estática del tanque. Las válvulas piloto pueden requerir una presión mínima que un tanque bajo no proporciona.
-- No alimentar la válvula desde el ESP32. Usar driver/relé y fuente externa.
-- Verificar que la válvula quede cerrada al arrancar y al perder alimentación.
-- Asegurar el tanque y evitar fugas sobre la electrónica.
-
-## Aplicación de escritorio
-
-La carpeta `godot/` conserva la interfaz de la rama feature. Su protocolo TCP/AP corresponde al firmware anterior y no está integrado aún con el firmware de riego por gravedad; no asumir que se conecta hasta completar esa integración.
+- Calibrar ADC seco/húmedo en sustrato real.
+- Calibrar pulsos por litro recogiendo volumen conocido a la altura definitiva del tanque.
+- Adaptar cualquier salida de 5 V antes de conectarla a GPIO.
+- Mantener electrónica protegida del agua.
+- Verificar válvula cerrada al arranque y ante pérdida de alimentación.
+- Probar primero con la válvula desconectada y después en banco, con supervisión.

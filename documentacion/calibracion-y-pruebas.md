@@ -1,42 +1,32 @@
-# Calibración y protocolo de validación
+# Calibración y pruebas
 
-## 1. Calibración de humedad del suelo
+## Humedad del suelo
 
-1. Montar el sensor capacitivo según la tensión recomendada por su fabricante.
-2. Conectar AO a GPIO34 y abrir el monitor serie a 115200 baudios.
-3. Mantener la sonda en aire o sustrato seco de referencia y anotar el valor estable de `soil_raw`.
-4. Humedecer uniformemente el sustrato, esperar a que se estabilice y anotar `soil_raw`.
-5. Copiar los valores medidos a `SOIL_DRY_RAW` y `SOIL_WET_RAW` en el firmware.
-6. Comprobar que `soil_moisture_pct` se aproxima a 0 % en el extremo seco y 100 % en el húmedo.
-7. Repetir varias veces y ajustar umbrales al cultivo y al sustrato.
+1. Leer el ADC en sustrato seco y registrar SOIL_DRY_RAW.
+2. Humedecer el sustrato, esperar estabilización y registrar SOIL_WET_RAW.
+3. Repetir varias veces y comprobar que el porcentaje calculado sea coherente. No copiar valores de otro sensor/sustrato.
 
-No sumergir la placa electrónica ni asumir que todos los sensores entregan valores en el mismo sentido. Si las lecturas secas/húmedas son iguales, erráticas o saturadas, revisar alimentación, GND, cableado y tensión AO.
+## Caudalímetro
 
-## 2. Activación del riego opcional
+1. Montarlo después de la electroválvula, respetando la flecha.
+2. Usar el tanque a la altura real del prototipo.
+3. Recoger un volumen conocido y contar pulsos.
+4. Calcular PULSES_PER_LITER = pulsos / litros. Repetir al menos tres veces.
+5. Comparar volumen calculado con volumen recogido y verificar el caudal mínimo.
 
-El programa mantiene el riego deshabilitado inicialmente. Antes de habilitarlo:
-- Confirmar físicamente que existe bomba, módulo de potencia y fuente externa adecuados.
-- Confirmar la polaridad de activación del relé.
-- Probar la salida sin bomba conectada y verificar que el estado de reposo sea apagado.
-- Calibrar el sensor y comprobar el porcentaje.
-- Ajustar umbral de inicio, umbral de parada, tiempo máximo de bomba y tiempo mínimo entre ciclos.
-- Cambiar `ENABLE_IRRIGATION` a `true` sólo después de esas verificaciones y bajo supervisión.
+## Ajuste del algoritmo
 
-El control tiene histéresis: inicia por debajo del umbral bajo y detiene al alcanzar el umbral alto. Incluye tiempo máximo de activación y bloqueo hasta recuperar humedad para reducir ciclos repetidos.
+Los umbrales 35 % y 45 % son ejemplos, no valores universales. Ajustar SOIL_START_PERCENT, SOIL_TARGET_PERCENT, WATER_BURST_MS, SOAK_TIME_MS, MAX_TOTAL_WATERING_MS y MAX_WATER_VOLUME_L al cultivo y al caudal real.
 
-## 3. Pruebas que debe registrar el equipo
+## Pruebas por documentar
 
-| ID | Prueba | Procedimiento | Evidencia a guardar |
-|---|---|---|---|
-| P01 | DHT22 | Comparar temperatura y humedad relativa del serial con instrumento de referencia, si está disponible | Captura del monitor serie y condiciones |
-| P02 | BH1750 | Exponer el sensor a distintas condiciones de iluminación y observar el cambio en lux | Capturas de lecturas y descripción |
-| P03 | Sensor de suelo | Comparar lecturas en sustrato seco y húmedo y verificar calibración | Registro ADC y porcentaje |
-| P04 opcional | Salida de riego | Con bomba aislada, verificar cambio de salida/relé; luego prueba controlada con fuente adecuada | Video/foto y registro de estado |
+| ID | Prueba | Resultado esperado |
+|---|---|---|
+| P01 | Suelo seco/húmedo | Lectura estable y calibración coherente |
+| P02 | Caudalímetro con volumen conocido | Volumen medido próximo al recogido |
+| P03 | Electroválvula | Cerrada al arranque; abre/cierra bajo control |
+| P04 | Flujo por gravedad | Pulsos detectados en la altura definitiva |
+| P05 | Algoritmo | Inicia bajo umbral, pausa infiltración y finaliza al objetivo |
+| P06 | Fallo de flujo/límite | Cierra válvula y entra en bloqueo |
 
-Para cada prueba escribir fecha, objetivo, resultado esperado, resultado observado, estado (exitosa/parcial/fallida) y nombre del archivo de evidencia. Esta tabla es un protocolo, no resultados ya obtenidos.
-
-## 4. Formato de registro sugerido
-
-~~~csv
-fecha,hora,prueba,valor,unidad,condicion,resultado,evidencia
-~~~
+Registrar fecha, procedimiento, resultado esperado/observado y evidencia. No declarar pruebas exitosas sin realizarlas.

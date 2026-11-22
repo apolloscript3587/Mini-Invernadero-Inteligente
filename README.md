@@ -1,69 +1,55 @@
 # Mini-Invernadero Inteligente
 
-Sistema de maceta inteligente con **riego automático por gravedad**, basado en ESP32-WROOM-32 / DevKit V1 y dos sensores: humedad del suelo y flujo de agua. El agua se almacena en un mini tanque elevado; una electroválvula normalmente cerrada controla el paso y el caudalímetro, instalado después de ella, mide el agua suministrada.
+Sistema de riego automático por gravedad con ESP32 y **dos sensores**: humedad del suelo y flujo de agua. Un tanque elevado alimenta la línea; una electroválvula normalmente cerrada regula el paso y el caudalímetro, instalado después de ella, mide el agua suministrada.
 
-## Objetivo y funcionamiento
+## Arquitectura de control
 
-El ESP32 convierte la lectura del sensor capacitivo a porcentaje mediante calibración. Cuando la humedad cae por debajo del umbral inferior, abre la electroválvula durante un pulso de tiempo limitado. El caudalímetro registra pulsos, caudal y volumen. Después se cierra la válvula para permitir infiltración; transcurrida la pausa se vuelve a medir el suelo. Se repiten pulsos hasta alcanzar la humedad objetivo o un límite de seguridad.
+La humedad del suelo decide cuándo iniciar y finalizar el riego. El caudalímetro mide caudal/volumen y permite detectar ausencia de pulsos durante un pulso activo. El ESP32 riega en pulsos, pausa para infiltración y vuelve a evaluar la humedad. Se aplican límites de tiempo y volumen.
 
-**La decisión de riego depende de la humedad del suelo.** El sensor de flujo confirma y cuantifica el agua suministrada; el tiempo de apertura y el volumen máximo son límites adicionales.
+## Interfaz Godot integrada
 
-## Hardware principal
+La aplicación de escritorio Godot 4 se comunica con el ESP32 mediante TCP sobre el punto de acceso Wi-Fi creado por el propio ESP32.
 
-| Elemento | Cantidad | Función |
-|---|---:|---|
-| Sensor capacitivo de humedad del suelo | 1 | Variable de decisión del riego |
-| Sensor de flujo por pulsos | 1 | Caudal y volumen suministrado |
-| ESP32 DevKit V1 / ESP32-WROOM-32 | 1 | Control |
-| Electroválvula normalmente cerrada | 1 | Control del agua |
-| Mini tanque elevado | 1 | Depósito y presión por gravedad |
-| Driver/relé y fuente externa | 1 | Conmutación/alimentación de válvula |
+1. Cargar el firmware desde `firmware/` con PlatformIO (entorno `esp32dev`) o usar Arduino IDE con ArduinoJson 7 instalado.
+2. Conectar el computador a la red Wi-Fi `MACETA_ESP32`; contraseña inicial `riego1234`.
+3. Ejecutar el proyecto `godot/` con Godot 4.
+4. Pulsar **Conectar**. El ESP32 escucha TCP en `192.168.4.1:5000`.
+5. La pantalla muestra humedad, ADC, caudal instantáneo, litros del ciclo, válvula, estado y evento.
+6. Los parámetros de riego se pueden enviar desde la interfaz: umbral de inicio, objetivo, duración de pulso, pausa de infiltración, tiempo máximo y volumen máximo.
 
-No se utilizan DHT22, BH1750, temperatura, humedad ambiental, iluminación ni otros sensores.
+La configuración enviada se mantiene en RAM y vuelve a los valores por defecto al reiniciar. La interfaz no permite forzar riego manual ni apagar remotamente el controlador. Cambiar la contraseña del AP en el firmware antes de desplegarlo.
 
-## Estructura
+## Archivos principales
 
-- `codigo/mini_invernadero_esp32.ino`: firmware de referencia para Arduino IDE.
-- `firmware/src/main.cpp` y `firmware/platformio.ini`: entrada de firmware para PlatformIO.
-- `docs/hardware.md`: seguridad eléctrica, selección de válvula y hardware.
-- `godot/`: aplicación de escritorio Godot 4, conservada de la rama feature como interfaz de configuración/monitorización en desarrollo.
-- `diagramas/`: conexiones y arquitectura del nuevo sistema.
-- `documentacion/` y `pruebas/`: calibración y validación.
+- `firmware/src/main.cpp`: firmware ESP32 con algoritmo, punto de acceso Wi-Fi y servidor TCP/JSON.
+- `firmware/platformio.ini`: configuración PlatformIO y dependencia ArduinoJson.
+- `godot/`: interfaz de monitorización y configuración.
+- `codigo/mini_invernadero_esp32.ino`: sketch autónomo de referencia por puerto serie (no incluye el protocolo Godot).
+- `docs/hardware.md`, `diagramas/`: conexiones y seguridad.
+- `documentacion/`, `pruebas/`: calibración y plan de validación.
 
-## Conexiones de referencia
+## Pines
 
-| Módulo | ESP32 |
-|---|---|
-| Humedad del suelo AO | GPIO34 (ADC1) |
-| Caudalímetro señal | GPIO27 (interrupción) |
-| Driver de electroválvula IN | GPIO26 |
+| Módulo | GPIO |
+|---|---:|
+| Sensor capacitivo de humedad AO | 34 |
+| Caudalímetro (pulsos) | 27 |
+| Driver de electroválvula | 26 |
 
-Hidráulica: tanque elevado → electroválvula NC → sensor de flujo → manguera/goteros → planta. Consultar `diagramas/conexiones.md`.
+Hidráulica: tanque elevado → electroválvula NC → caudalímetro → goteros/planta.
 
-## Algoritmo y valores iniciales
+## Calibración obligatoria
 
-- Iniciar cuando humedad ≤ 35 %.
-- Objetivo de parada: humedad ≥ 45 %.
-- Pulso de apertura: 5 s; pausa de infiltración: 30 s.
-- Límites iniciales: 30 s acumulados de válvula abierta, 0,5 L y 5 pulsos de riego.
+Antes de habilitar el riego, establecer `SOIL_DRY_RAW` y `SOIL_WET_RAW` en `firmware/src/main.cpp` con lecturas ADC reales. Calibrar `pulsesPerLiter` con un volumen conocido. El factor de caudal debe verificarse con la altura y tubería reales.
 
-Son valores de demostración, no universales. Ajustar a especie, sustrato, maceta y caudal real.
+Los valores iniciales (35 % inicio, 45 % objetivo, pulso 5 s, pausa 30 s, 30 s máximos y 0,5 L) son ejemplos y deben adaptarse al cultivo y sustrato.
 
-## Firmware
+## Protocolo de comunicación
 
-Arduino IDE: abrir `codigo/mini_invernadero_esp32.ino`. PlatformIO: abrir la carpeta `firmware`. Monitor serie a 115200 baudios; la telemetría JSON informa humedad, pulsos, caudal, volumen y estado de válvula.
+TCP en puerto 5000, mensajes JSON terminados en salto de línea. Tipos admitidos: `ping`, `get_status` y `config`. La telemetría usa `type=telemetry` e incluye `soil_moisture_pct`, `flow_l_min`, `water_liters_cycle`, `valve_open`, `state` y `event`. Las respuestas a comandos usan `type=ack`.
 
-Antes de operar, calibrar `SOIL_DRY_RAW` y `SOIL_WET_RAW` con el sustrato real, y `PULSES_PER_LITER` recogiendo un volumen conocido. Los valores de fábrica no sustituyen la calibración en el montaje por gravedad.
+## Seguridad y validación
 
-## Aplicación Godot (feature conservada)
+La válvula debe ser NC, apta para baja presión y accionada por driver/fuente externa. No alimentar la bobina desde un GPIO. Adaptar las señales de 5 V a 3,3 V. Proteger electrónica de salpicaduras. Verificar que el caudalímetro detecte el caudal por gravedad y que la válvula opere con la presión disponible.
 
-Se conserva `godot/` por su interfaz de escritorio, controles de configuración y visualización. **La comunicación TCP/AP que espera la aplicación pertenece al firmware anterior y todavía no está integrada en el firmware nuevo de riego por gravedad**. Por tanto, la interfaz es una base útil, pero no debe considerarse conectada/operativa hasta implementar y probar ese protocolo en el ESP32.
-
-## Seguridad y limitaciones
-
-- Usar electroválvula normalmente cerrada apta para la presión estática disponible. Algunas válvulas piloto requieren presión mínima; preferir acción directa si el tanque tiene poca altura.
-- Verificar el caudal mínimo del caudalímetro. Un sensor de turbina puede no registrar caudales bajos y generar pérdida de carga.
-- No introducir 5 V en GPIO del ESP32: adaptar la señal del caudalímetro a lógica de 3,3 V.
-- La válvula requiere driver y fuente externa; nunca alimentarla desde un GPIO.
-- Proteger la electrónica del agua e instalar protección de transitorios para la carga inductiva.
-- El firmware debe compilarse y probarse con el hardware real antes de activar la válvula. Las pruebas físicas deben documentarse con evidencias.
+**No se ha ejecutado una compilación ni una prueba física en esta modificación.** Compilar y validar con la válvula desconectada primero; comprobar niveles lógicos, calibración, comunicación y cierre seguro antes de operar con agua.

@@ -1,16 +1,7 @@
-# Firmware ESP32 — riego por gravedad
+# Firmware
 
-## Sensores y pines
-- Humedad capacitiva del suelo: AO a GPIO34 (ADC1).
-- Caudalímetro de pulsos: señal a GPIO27.
-- Driver/relé de electroválvula: GPIO26.
+El firmware principal integrado con la interfaz Godot está en `firmware/src/main.cpp` y se compila con PlatformIO desde la carpeta `firmware/`. Usa ArduinoJson 7 y crea un AP Wi-Fi `MACETA_ESP32` (contraseña inicial `riego1234`) con servidor TCP en `192.168.4.1:5000`.
 
-Plataforma de referencia: ESP32 DevKit V1 / ESP32-WROOM-32. Sin librerías externas.
+El archivo `codigo/mini_invernadero_esp32.ino` es una variante serial de referencia; no implementa el protocolo de red de Godot.
 
-## Calibración
-Configurar SOIL_DRY_RAW y SOIL_WET_RAW con lecturas ADC reales de sustrato seco y húmedo. Configurar PULSES_PER_LITER recogiendo volumen conocido y dividiendo pulsos entre litros. Repetir con la altura y tubería definitivas.
-
-Umbrales 35 % y 45 %, pulso 5 s y pausa 30 s son valores de ejemplo; ajustar a planta, sustrato y caudal.
-
-## Seguridad
-Electroválvula normalmente cerrada apta para baja presión, con driver y fuente externa. No alimentar la válvula desde el ESP32. Adaptar señal de caudalímetro de 5 V a 3,3 V. Verificar caudal mínimo del sensor.
+Calibrar humedad y pulsos por litro antes de operar. No activar la válvula hasta validar la salida del driver y el caudal por gravedad.

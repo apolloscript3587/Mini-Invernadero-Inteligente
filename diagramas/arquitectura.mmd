@@ -1,0 +1,10 @@
+flowchart TD
+ T[Tanque elevado] --> V[Electrovalvula normalmente cerrada]
+ V --> F[Sensor de flujo / caudalimetro]
+ F --> P[Manguera y goteros hacia la planta]
+ S[Sensor humedad del suelo] -->|ADC GPIO34| E[ESP32]
+ F -->|Pulsos GPIO27| E
+ E -->|GPIO26| D[Driver o rele]
+ D --> V
+ E --> A[Algoritmo: umbral de humedad + tiempo + volumen]
+ E --> J[Telemetria JSON por Serial]

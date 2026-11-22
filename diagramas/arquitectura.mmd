@@ -1,13 +1,10 @@
 flowchart TD
-  subgraph Entradas
-    A[DHT22: temperatura y humedad relativa]
-    B[BH1750: iluminacion en lux]
-    C[Sensor capacitivo: humedad del suelo]
-  end
-  D[ESP32 DevKit V1]
-  A -->|GPIO 4| D
-  B -->|I2C: SDA 21 / SCL 22| D
-  C -->|ADC: GPIO 34| D
-  D --> E[Monitor serie: telemetria JSON]
-  D -->|GPIO 26 opcional| F[Modulo de rele]
-  F --> G[Bomba con fuente externa]
+ T[Tanque elevado] --> V[Electrovalvula normalmente cerrada]
+ V --> F[Sensor de flujo / caudalimetro]
+ F --> P[Manguera y goteros hacia la planta]
+ S[Sensor humedad del suelo] -->|ADC GPIO34| E[ESP32]
+ F -->|Pulsos GPIO27| E
+ E -->|GPIO26| D[Driver o rele]
+ D --> V
+ E --> A[Algoritmo: umbral de humedad + tiempo + volumen]
+ E --> J[Telemetria JSON por Serial]

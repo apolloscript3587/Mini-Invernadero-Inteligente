@@ -8,7 +8,7 @@ constexpr int SOIL_DRY_RAW=-1, SOIL_WET_RAW=-1;
 constexpr float PULSES_PER_LITER=450.0f;
 constexpr float SOIL_START_PERCENT=35.0f, SOIL_TARGET_PERCENT=45.0f;
 constexpr unsigned long SAMPLE_MS=2500, BURST_MS=5000, SOAK_MS=30000;
-constexpr unsigned long FLOW_TIMEOUT_MS=8000, MAX_TOTAL_MS=30000;
+constexpr unsigned long FLOW_TIMEOUT_MS=2000, MAX_TOTAL_MS=30000;
 constexpr float MAX_VOLUME_L=0.50f;
 constexpr uint8_t MAX_CYCLES=5, SOIL_SAMPLES=12;
 volatile uint32_t flowPulses=0;

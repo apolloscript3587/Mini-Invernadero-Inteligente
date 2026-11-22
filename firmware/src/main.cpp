@@ -12,7 +12,7 @@ constexpr uint16_t TCP_PORT=5000;
 constexpr int SOIL_DRY_RAW=-1, SOIL_WET_RAW=-1; // calibrar
 constexpr float DEFAULT_PULSES_PER_LITER=450.0f; // calibrar en el montaje
 constexpr uint8_t SOIL_SAMPLES=12;
-constexpr unsigned long SAMPLE_MS=2500, FLOW_TIMEOUT_MS=8000;
+constexpr unsigned long SAMPLE_MS=2500, FLOW_TIMEOUT_MS=4000;
 volatile uint32_t flowPulses=0;
 enum State { IDLE, WATERING, SOAKING, LOCKOUT };
 State state=IDLE;

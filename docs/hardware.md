@@ -1,70 +1,45 @@
 # Hardware y cableado
 
-## Placa objetivo
+## Plataforma
 
 ESP32 DevKit V1 con módulo ESP32-WROOM-32 clásico.
 
-## Mapa de pines
+## Sensores (solo dos)
 
-| Señal | GPIO | Nota |
+| Elemento | GPIO | Nota |
 |---|---:|---|
-| Sensor capacitivo AOUT | 34 | ADC1, entrada solamente |
-| Sensor VCC conmutado (si el módulo admite 3.3 V) | 32 | Confirmar consumo y tensión del sensor |
-| Botón wake | 33 | Botón entre GPIO33 y GND; pull-up externo de 10 kΩ a 3.3 V |
-| MOSFET gate | 25 | Solo después de validar driver y válvula |
-| LED externo | 26 | Añadir resistencia limitadora |
+| Sensor capacitivo de humedad AO | 34 | ADC1, entrada solamente |
+| Caudalímetro: salida de pulsos | 27 | Interrupción; adaptar nivel a 3,3 V |
+
+## Actuador
+
+| Elemento | GPIO | Nota |
+|---|---:|---|
+| Entrada de driver/relé de electroválvula | 26 | No conectar la bobina al GPIO |
+
+La electroválvula debe ser normalmente cerrada y alimentarse con fuente externa adecuada. Para válvula DC, dimensionar MOSFET logic-level, cableado, fuente y protección flyback según tensión/corriente de la bobina. Para válvula AC se requiere una etapa aislada específica; no usar el esquema DC.
 
 ## Sensor capacitivo
 
-- Verificar la tensión de alimentación indicada por el fabricante.
-- Verificar con multímetro que AOUT nunca supere 3.3 V.
-- Si el sensor se alimenta a 5 V y su salida puede superar 3.3 V, usar divisor o adaptación de nivel.
-- Calibrar RAW en el sustrato real, tanto seco como en el nivel de humedad deseado.
-- La alimentación conmutada por GPIO32 solo es válida si el consumo del módulo está dentro de la capacidad del pin; si no, usar un transistor/MOSFET de alimentación.
+- Confirmar tensión de alimentación del fabricante.
+- AOUT nunca debe superar 3,3 V en GPIO34; adaptar nivel si corresponde.
+- Calibrar ADC en sustrato seco y húmedo real; cargar los valores en el firmware.
+- Evitar sumergir la electrónica y proteger conexiones de salpicaduras.
 
-## Botón de despertar
+## Sensor de flujo
 
-- GPIO33 ↔ botón ↔ GND.
-- Resistencia externa de 10 kΩ entre GPIO33 y 3.3 V.
-- GPIO33 admite despertar EXT0 en ESP32 clásico.
-- No entrar en Deep Sleep con el botón presionado; puede provocar despertares inmediatos repetidos.
+- Instalar después de la electroválvula, respetando la flecha de flujo.
+- Confirmar que el modelo mida el caudal bajo disponible por gravedad.
+- Calibrar pulsos por litro con un volumen recogido en el montaje definitivo.
+- Adaptar toda salida de 5 V a 3,3 V antes de GPIO27.
 
-## Electroválvula
+## Electroválvula y tanque
 
-**No conectar la válvula directamente al ESP32.** Antes de activar el driver se debe conocer:
+- La válvula debe ser apta para la presión estática del tanque. Las válvulas piloto pueden requerir una presión mínima que un tanque bajo no proporciona.
+- No alimentar la válvula desde el ESP32. Usar driver/relé y fuente externa.
+- Verificar que la válvula quede cerrada al arrancar y al perder alimentación.
+- Asegurar el tanque y evitar fugas sobre la electrónica.
 
-1. AC o DC.
-2. Tensión nominal.
-3. Corriente nominal y de arranque.
-4. Tipo normalmente cerrada (preferido) o normalmente abierta.
-5. Si la válvula admite el caudal y presión disponibles.
+## Aplicación de escritorio
 
-Para una válvula DC normalmente cerrada, el esquema típico es un MOSFET N-channel logic-level en low-side:
-- Positivo de la fuente de válvula → positivo de la bobina.
-- Negativo de la bobina → Drain.
-- Source → GND común.
-- GPIO25 → Gate mediante resistencia serie.
-- Gate → GND mediante resistencia pull-down.
-- Diodo flyback en paralelo con la bobina: cátodo al positivo, ánodo al Drain.
-- Fuente, MOSFET, pistas y conectores dimensionados para la corriente de la bobina.
-
-Si la válvula es AC, este esquema no aplica: usar un módulo aislado apropiado y diseño específico para tensión de red. No manipular tensión de red sin experiencia y protecciones adecuadas.
-
-El firmware mantiene `VALVE_DRIVER_CONFIRMED=0` por seguridad. No cambiarlo a 1 hasta verificar el circuito y probarlo con la válvula desconectada y una carga de prueba apropiada.
-
-## Batería
-
-No seleccionar cargador, regulador ni batería hasta conocer la tensión/corriente de la válvula. Considerar:
-- Corriente pico de la válvula.
-- Corriente del ESP32 durante transmisión Wi-Fi.
-- Regulador con margen de corriente y baja corriente quiescente.
-- Protección de batería (sobrecarga, sobredescarga y cortocircuito).
-- Medición de batería mediante divisor ADC calculado para el voltaje máximo.
-- El DevKit V1 puede consumir bastante en Deep Sleep por su regulador, LED y USB-UART.
-
-## Medición del volumen
-
-La versión inicial estima volumen por tiempo:
-`duración_ms = volumen_ml / caudal_ml_s * 1000`.
-
-Calibrar con recipiente graduado y la misma altura, manguera y presión del montaje final. Un caudalímetro solo se añadirá tras verificar que funciona con caudales bajos. Instalar además un límite de tiempo máximo independiente del cálculo de volumen.
+La carpeta `godot/` conserva la interfaz de la rama feature. Su protocolo TCP/AP corresponde al firmware anterior y no está integrado aún con el firmware de riego por gravedad; no asumir que se conecta hasta completar esa integración.

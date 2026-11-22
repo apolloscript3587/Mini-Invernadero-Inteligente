@@ -9,7 +9,7 @@ var tcp := StreamPeerTCP.new()
 var connected := false
 var rx_buffer := ""
 var last_ping_ms := 0
-var last_status_ms := 0
+var received_initial_config := false
 
 var status_label: Label
 var humidity_label: Label
@@ -179,6 +179,7 @@ func _process(_delta: float) -> void:
             status_label.text = "Conectado al ESP32. Recibiendo telemetría."
             connect_button.disabled = true
             disconnect_button.disabled = false
+            received_initial_config = false
             _send_json({"type": "get_status"})
         _read_messages()
         var now := Time.get_ticks_msec()
@@ -227,8 +228,9 @@ func _handle_message(line: String) -> void:
                 status_label.text = "El ESP32 rechazó la solicitud."
 
 func _sync_config(data: Dictionary) -> void:
-    if start_spin.has_focus() or target_spin.has_focus() or burst_spin.has_focus() or soak_spin.has_focus() or max_time_spin.has_focus() or max_volume_spin.has_focus():
+    if received_initial_config:
         return
+    received_initial_config = true
     start_spin.value = float(data.get("soil_start_percent", start_spin.value))
     target_spin.value = float(data.get("soil_target_percent", target_spin.value))
     burst_spin.value = float(data.get("burst_seconds", burst_spin.value))

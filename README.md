@@ -56,6 +56,6 @@ La válvula debe ser NC, apta para baja presión y accionada por driver/fuente e
 
 ## Miembros
 
-# Julian Jimenez
-# Juan Chancy
-# Santiago Polo
+### Julian Jimenez
+### Juan Chancy
+### Santiago Polo

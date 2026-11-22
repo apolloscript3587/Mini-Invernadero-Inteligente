@@ -53,3 +53,9 @@ TCP en puerto 5000, mensajes JSON terminados en salto de línea. Tipos admitidos
 La válvula debe ser NC, apta para baja presión y accionada por driver/fuente externa. No alimentar la bobina desde un GPIO. Adaptar las señales de 5 V a 3,3 V. Proteger electrónica de salpicaduras. Verificar que el caudalímetro detecte el caudal por gravedad y que la válvula opere con la presión disponible.
 
 **No se ha ejecutado una compilación ni una prueba física en esta modificación.** Compilar y validar con la válvula desconectada primero; comprobar niveles lógicos, calibración, comunicación y cierre seguro antes de operar con agua.
+
+## Miembros
+
+# Julian Jimenez
+# Juan Chancy
+# Santiago Polo

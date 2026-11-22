@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="720" viewBox="0 0 1100 720">
+<rect width="1100" height="720" fill="#f8fafc"/>
+<g font-family="Arial,sans-serif" fill="#0f172a">
+<text x="40" y="48" font-size="27" font-weight="bold">Mini-invernadero: dos sensores y riego por gravedad</text>
+<rect x="390" y="180" width="300" height="350" rx="18" fill="#e8f1fb" stroke="#2563eb" stroke-width="3"/>
+<text x="540" y="220" text-anchor="middle" font-size="22" font-weight="bold">ESP32 DevKit</text>
+<text x="420" y="290" font-size="18">GPIO34 — humedad suelo</text><text x="420" y="350" font-size="18">GPIO27 — pulsos flujo</text><text x="420" y="410" font-size="18">GPIO26 — válvula</text><text x="420" y="480" font-size="17">Serial — telemetría</text>
+<rect x="35" y="190" width="270" height="130" rx="14" fill="#eefbf3" stroke="#16a34a" stroke-width="2"/><text x="170" y="235" text-anchor="middle" font-size="20" font-weight="bold">Sensor humedad</text><text x="65" y="280" font-size="17">AO → GPIO34</text>
+<rect x="35" y="410" width="270" height="130" rx="14" fill="#eefbf3" stroke="#16a34a" stroke-width="2"/><text x="170" y="455" text-anchor="middle" font-size="20" font-weight="bold">Sensor de flujo</text><text x="65" y="500" font-size="17">Señal → GPIO27</text>
+<rect x="800" y="75" width="260" height="95" rx="14" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/><text x="930" y="115" text-anchor="middle" font-size="20" font-weight="bold">Tanque elevado</text><text x="930" y="145" text-anchor="middle" font-size="15">Presión por gravedad</text>
+<rect x="800" y="240" width="260" height="105" rx="14" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/><text x="930" y="280" text-anchor="middle" font-size="20" font-weight="bold">Electroválvula NC</text><text x="930" y="315" text-anchor="middle" font-size="15">Driver + fuente externa</text>
+<rect x="800" y="420" width="260" height="105" rx="14" fill="#eefbf3" stroke="#16a34a" stroke-width="2"/><text x="930" y="460" text-anchor="middle" font-size="20" font-weight="bold">Caudalímetro</text><text x="930" y="495" text-anchor="middle" font-size="15">Después de la válvula</text>
+<rect x="800" y="590" width="260" height="75" rx="14" fill="#eefbf3" stroke="#16a34a" stroke-width="2"/><text x="930" y="635" text-anchor="middle" font-size="20" font-weight="bold">Goteros / planta</text>
+<g fill="none" stroke-width="4"><path d="M305 255 H390" stroke="#2563eb"/><path d="M305 475 H350 V350 H390" stroke="#7c3aed"/><path d="M690 410 H750 V292 H800" stroke="#ea580c"/><path d="M930 170 V240" stroke="#ea580c"/><path d="M930 345 V420" stroke="#2563eb"/><path d="M930 525 V590" stroke="#2563eb"/></g>
+<text x="40" y="700" font-size="14" fill="#475569">Adaptar señal de flujo a 3,3 V. Válvula con driver/fuente externa y apta para baja presión.</text>
+</g></svg>

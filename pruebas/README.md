@@ -1,3 +1,11 @@
-# Pruebas de funcionamiento
+# Pruebas del riego por gravedad
 
-Documentar al menos tres pruebas reales. Para cada una registrar objetivo, procedimiento, resultado esperado, resultado obtenido y evidencia. Pruebas sugeridas según los sensores definidos: lectura DHT22, lectura BH1750 y lectura del sensor capacitivo. Si el riego está instalado, documentar también su activación. No marcar pruebas como exitosas sin registros verificables.
+Documentar pruebas reales de los dos sensores y el actuador:
+
+1. Calibración del sensor de humedad en sustrato seco y húmedo.
+2. Calibración del caudalímetro con volumen conocido y altura real del tanque.
+3. Apertura y cierre de la electroválvula normalmente cerrada.
+4. Ciclo automático: humedad baja, pulso de riego, pausa de infiltración y parada al alcanzar el objetivo.
+5. Seguridad: ausencia de flujo, tiempo máximo y volumen máximo.
+
+Para cada prueba incluir fecha, objetivo, procedimiento, resultado esperado, resultado observado, estado y evidencia. No marcar como exitosa sin evidencia.
